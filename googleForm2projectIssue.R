@@ -13,7 +13,7 @@ usePackage <- function(p) {
 # format row to markdown file content
 row2md<-function(data,row_number){
   # subset to row for issue
-  d1<-data[row_number,] %>% select(-Timestamp,-project_issue)
+  d1<-data[row_number,] %>% select(-Timestamp,-project_issue,-project_new)
   
   # get headers and clean
   headers <- colnames(d1) %>% gsub("\\."," ",.) %>% gsub(" $","",.) %>% paste(.,":",sep="") %>% paste("**",.,"**",sep="")
