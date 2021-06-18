@@ -77,4 +77,6 @@ write.csv(d,file=out_file,row.names=FALSE,quote=TRUE)
 
 # save list of new projects for which an issue need to be opened:
 new<-d %>% filter(project_new==1) %>% select(project_issue,Project.title.) 
-write.table(new,paste0("project_issues/list_new_projects.txt"),row.names=FALSE,col.names=FALSE,quote=TRUE)
+if (NROW(new)>0){
+  write.table(new,paste0("project_issues/list_new_projects.txt"),row.names=FALSE,col.names=FALSE,quote=TRUE)
+}
