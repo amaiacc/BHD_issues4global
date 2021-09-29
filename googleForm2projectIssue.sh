@@ -32,7 +32,6 @@ dos2unix ./project_data/BHD2021_projects_edited.csv
 Rscript --verbose googleForm2projectIssue.R ./project_data/BHD2021_projects_edited.csv
 
 # For each new project, open a new issue in github (BHD2021?)
-
 gh issue list | grep "^[^#;]" | awk '{print $3}'> open_issues.txt # create list open issue titles --> do not resubmit if project has an open issue
 
 cd project_issues
@@ -48,7 +47,7 @@ then
    if ! grep -q ${title} ../open_issues.txt
     then
      echo "The title for ${id} is ${title}."
-    # gh issue create --title ${title} --body-file ${id}.md
+     gh issue create --title ${title} --body-file ${id}.md
     else
      echo "Issue for project with title '${title}' is already open."
    fi
