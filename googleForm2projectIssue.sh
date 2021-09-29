@@ -17,8 +17,19 @@ mkdir -p project_data project_issues
 
 wget --no-check-certificate ${url_file} -O 'project_data/BHD2021_projects.csv' 
 
+# replace all LF that are not preceded by CR with a space (i.e. keep CRLF)
+## from: https://stackoverflow.com/questions/50737164/how-to-use-sed-to-substitute-lf-with-space-but-not-crlf
+awk 'BEGIN{RS=ORS="\r\n"}/\n/{sub(/\n/,"")}1' 'project_data/BHD2021_projects.csv' > 'project_data/BHD2021_projects_edited.csv'
+awk '!/\r$/{printf "%s",$0;next}1' 'project_data/BHD2021_projects.csv' > 'project_data/BHD2021_projects_edited.csv'
+# add \n at the end of the file, if not present
+## from: https://unix.stackexchange.com/questions/31947/how-to-add-a-newline-to-the-end-of-a-file
+sed -i -e '$a\' 'project_data/BHD2021_projects_edited.csv'
+
+# make sure it's in unix format, otherwise problems when reading with R if there are newline and other system specific characters
+dos2unix ./project_data/BHD2021_projects_edited.csv
+
 # run this script to create an adequatelly formatted markdown file for each project
-Rscript --verbose googleForm2projectIssue.R project_data/BHD2021_projects.csv
+Rscript --verbose googleForm2projectIssue.R ./project_data/BHD2021_projects_edited.csv
 
 # For each new project, open a new issue in github (BHD2021?)
 
@@ -42,15 +53,7 @@ then
      echo "Issue for project with title '${title}' is already open."
    fi
  done < list_new_projects.txt
+ # remove list of new projects after creating the issues - to avoid resubmitting them
+ rm list_new_projects.txt # remove file 
 fi
-
-rm list_new_projects.txt # remove file
-if grep -q PATTERN file.txt; then
-    echo found
-else
-    echo not found
-
-# remove list of new projects after creating the issues - to avoid resubmitting them
-rm list_new_projects.txt 
-
 
