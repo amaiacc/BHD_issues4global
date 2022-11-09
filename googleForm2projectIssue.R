@@ -16,7 +16,7 @@ row2md<-function(data,row_number){
   d1<-data[row_number,] %>% select(-Timestamp,-project_issue,-project_new)
   
   # get headers and clean
-  headers <- colnames(d1) %>% gsub("\\."," ",.) %>% gsub(" $","",.) %>% paste(.,":",sep="") %>% paste("**",.,"**",sep="")
+  headers <- colnames(d1) %>% gsub("\\."," ",.) %>% gsub(" $","",.) %>% paste(.,":",sep="") %>% paste("## ",.,sep="")
   
   # get cols that are not empty
   w<-which(apply(d1[row_number,],2,function(x) x=="")==TRUE %>% sum())
@@ -41,9 +41,18 @@ input_file<-args[1]
 out_file<-gsub(".csv","_issues.csv",input_file)
 # create directory to output issues in md format
 if (!dir.exists("project_issues")){dir.create("project_issues")}
+year=strsplit(input_file,"BHD") %>% sapply("[[",2) %>% strsplit(.,"_") %>% sapply("[[",1)
 #-------------------------------------------------------------------------------
 # read issues, downloaded from the google form
 d<-read.csv(input_file)
+# add event name
+d<-d %>%mutate(Brainhack.Global.YEAR.Event="BrainHack Donostia")
+## move event name after "collaborators"
+w<-grep("Collaborators",colnames(d))
+cols_order<-c(colnames(d)[1:w],"Brainhack.Global.YEAR.Event",colnames(d)[(w+1):(NCOL(d)-1)])
+d<-d[,cols_order]
+# add correct year name into column
+colnames(d)<-gsub("YEAR",year,colnames(d))
 
 # assign issue number, format it to contain 3 characters
 ns<-1:NROW(d)
@@ -78,5 +87,5 @@ write.csv(d,file=out_file,row.names=FALSE,quote=TRUE)
 # save list of new projects for which an issue need to be opened:
 new <- d %>% filter(project_new==1) %>% select(project_issue,Project.title.) 
 if (NROW(new)>0){
-  write.table(new,paste0("project_issues/list_new_projects.txt"),row.names=FALSE,col.names=FALSE,quote=TRUE)
+  write.table(new,paste0("project_issues/list_new_projects.csv"),row.names=FALSE,col.names=FALSE,quote=TRUE,sep=",")
 }
